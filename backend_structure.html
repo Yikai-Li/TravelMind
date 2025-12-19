@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelMind Backend Architecture - Visual Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            margin: 20px 0 10px 0;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .flow-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .flow-step {
+            background: white;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .flow-step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .flow-step.agent {
+            border-left-color: #28a745;
+        }
+        
+        .flow-step.api {
+            border-left-color: #ffc107;
+        }
+        
+        .flow-step.utility {
+            border-left-color: #17a2b8;
+        }
+        
+        .arrow {
+            text-align: center;
+            color: #667eea;
+            font-size: 2em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
+        }
+        
+        .card.green {
+            border-top-color: #28a745;
+        }
+        
+        .card.orange {
+            border-top-color: #ffc107;
+        }
+        
+        .card.blue {
+            border-top-color: #17a2b8;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .badge.input {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge.output {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .badge.process {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .visual-flow {
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .flow-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        .flow-box.input {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .flow-box.agent {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .flow-box.output {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
+        
+        .connector {
+            text-align: center;
+            color: #667eea;
+            font-size: 2.5em;
+            margin: -10px 0;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .legend {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .legend-item {
+            display: inline-block;
+            margin: 10px 20px 10px 0;
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .mode-section {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .mode-section h3 {
+            color: #d84315;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗺️ TravelMind Backend Architecture</h1>
+            <p>Visual Flow Diagram: From User Input to Travel Plan Output</p>
+        </header>
+        
+        <div class="content">
+            <!-- Overview Section -->
+            <section>
+                <h2>📊 System Overview</h2>
+                <p>The TravelMind backend is built on a <strong>multi-agent orchestration architecture</strong> where specialized LLM agents work together to transform user inputs into comprehensive travel plans. The system supports multiple planning modes and detail levels.</p>
+                
+                <div class="legend">
+                    <strong>Color Legend:</strong>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #667eea;"></span>
+                        API Layer
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #28a745;"></span>
+                        LLM Agents
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #17a2b8;"></span>
+                        Utilities
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #ffc107;"></span>
+                        Data Storage
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Main Flow Diagram -->
+            <section>
+                <h2>🔄 Complete Request Flow</h2>
+                <div class="visual-flow">
+                    <div class="flow-box input">
+                        <h3>👤 User Input</h3>
+                        <p><strong>Endpoint:</strong> POST /api/plan</p>
+                        <p>Dates, Budget, Interests, Travel Style, Pace, etc.</p>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box" style="background: #ffc107; color: #333;">
+                        <h3>🎯 API Layer (api.py)</h3>
+                        <p>Request validation, routing, and error handling</p>
+                        <code>generate_plan()</code>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box" style="background: #6c757d; color: white;">
+                        <h3>🎼 Orchestrator (orchestrator.py)</h3>
+                        <p><code>TravelMindOrchestrator.generate_plan()</code></p>
+                        <p>Coordinates agent pipeline and manages flow</p>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box agent">
+                        <h3>🔍 Step 1: Constraint Parser Agent</h3>
+                        <p><code>ConstraintParserAgent.parse()</code></p>
+                        <p>Normalizes and validates user constraints</p>
+                        <p>✓ Detects conflicts | ✓ Fills missing values | ✓ Validates dates</p>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box agent">
+                        <h3>🌍 Step 2: Destination Recommender Agent</h3>
+                        <p><code>DestinationRecommenderAgent.recommend()</code></p>
+                        <p>Suggests destinations based on preferences</p>
+                        <p>✓ Score ranking | ✓ Budget matching | ✓ Interest alignment</p>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <strong style="color: #dc3545; font-size: 1.2em;">⚡ Decision Point: Detail Level?</strong>
+                        <div style="margin-top: 15px;">
+                            <span class="badge process">High-Level</span>
+                            <span class="badge process">Medium</span>
+                            <span class="badge process">Full</span>
+                        </div>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box agent">
+                        <h3>📅 Step 3: Itinerary Planner Agent</h3>
+                        <p><code>ItineraryPlannerAgent.plan()</code></p>
+                        <p>Creates day-by-day travel itinerary</p>
+                        <p>✓ Activity scheduling | ✓ Time allocation | ✓ Pace optimization</p>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box agent">
+                        <h3>✨ Step 4: Detail Enricher Agent</h3>
+                        <p><code>DetailEnricherAgent.enrich()</code></p>
+                        <p>Adds detailed information to activities</p>
+                        <p>✓ Pricing | ✓ Hours | ✓ Booking links | ✓ Tips</p>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box utility">
+                        <h3>🔗 URL Validation (url_validator.py)</h3>
+                        <p><code>filter_valid_sources()</code></p>
+                        <p>Validates and filters external URLs</p>
+                    </div>
+                    
+                    <div class="connector">↓</div>
+                    
+                    <div class="flow-box output">
+                        <h3>📤 Complete Travel Plan Output</h3>
+                        <p>JSON response with itinerary, metadata, warnings</p>
+                        <p>Plan ID, Destination, Days, Activities, Costs, Tips</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Agent Details -->
+            <section>
+                <h2>🤖 LLM Agent Details</h2>
+                <div class="grid">
+                    <div class="card green">
+                        <h3>1️⃣ Constraint Parser</h3>
+                        <p><strong>File:</strong> <code>constraint_parser.py</code></p>
+                        <p><strong>Purpose:</strong> Parse and validate user inputs</p>
+                        <p><strong>Key Functions:</strong></p>
+                        <ul>
+                            <li><code>parse()</code> - Main parsing logic</li>
+                            <li><code>_validate_and_enrich()</code> - Validation</li>
+                        </ul>
+                        <p><strong>Outputs:</strong></p>
+                        <span class="badge output">Normalized constraints</span>
+                        <span class="badge output">Warnings</span>
+                        <span class="badge output">Conflicts</span>
+                    </div>
+                    
+                    <div class="card green">
+                        <h3>2️⃣ Destination Recommender</h3>
+                        <p><strong>File:</strong> <code>destination_recommender.py</code></p>
+                        <p><strong>Purpose:</strong> Recommend destinations</p>
+                        <p><strong>Key Functions:</strong></p>
+                        <ul>
+                            <li><code>recommend()</code> - Generate recommendations</li>
+                            <li><code>_validate_recommendations()</code> - Validate</li>
+                        </ul>
+                        <p><strong>Outputs:</strong></p>
+                        <span class="badge output">Destination list</span>
+                        <span class="badge output">Scores</span>
+                        <span class="badge output">Reasoning</span>
+                    </div>
+                    
+                    <div class="card green">
+                        <h3>3️⃣ Itinerary Planner</h3>
+                        <p><strong>File:</strong> <code>itinerary_planner.py</code></p>
+                        <p><strong>Purpose:</strong> Create day-by-day itineraries</p>
+                        <p><strong>Key Functions:</strong></p>
+                        <ul>
+                            <li><code>plan()</code> - Generate itinerary</li>
+                            <li><code>_validate_itinerary()</code> - Validation</li>
+                        </ul>
+                        <p><strong>Outputs:</strong></p>
+                        <span class="badge output">Daily activities</span>
+                        <span class="badge output">Timing</span>
+                        <span class="badge output">Overview</span>
+                    </div>
+                    
+                    <div class="card green">
+                        <h3>4️⃣ Detail Enricher</h3>
+                        <p><strong>File:</strong> <code>detail_enricher.py</code></p>
+                        <p><strong>Purpose:</strong> Add detailed information</p>
+                        <p><strong>Key Functions:</strong></p>
+                        <ul>
+                            <li><code>enrich()</code> - Main enrichment</li>
+                            <li><code>_enrich_day()</code> - Per-day enrichment</li>
+                        </ul>
+                        <p><strong>Outputs:</strong></p>
+                        <span class="badge output">Pricing</span>
+                        <span class="badge output">Hours</span>
+                        <span class="badge output">Links</span>
+                    </div>
+                    
+                    <div class="card green">
+                        <h3>5️⃣ Dual Model Enricher</h3>
+                        <p><strong>File:</strong> <code>dual_model_enricher.py</code></p>
+                        <p><strong>Purpose:</strong> Enhanced enrichment with web scraping</p>
+                        <p><strong>Key Functions:</strong></p>
+                        <ul>
+                            <li><code>enrich_activity()</code> - Single activity</li>
+                            <li><code>_scrape_additional_info()</code> - Web scraping</li>
+                        </ul>
+                        <p><strong>Outputs:</strong></p>
+                        <span class="badge output">Real URLs</span>
+                        <span class="badge output">Reviews</span>
+                        <span class="badge output">Tips</span>
+                    </div>
+                    
+                    <div class="card green">
+                        <h3>6️⃣ Plan Enhancer</h3>
+                        <p><strong>File:</strong> <code>plan_enhancer.py</code></p>
+                        <p><strong>Purpose:</strong> Enhance existing user plans</p>
+                        <p><strong>Key Functions:</strong></p>
+                        <ul>
+                            <li><code>enhance()</code> - Improve existing plan</li>
+                            <li><code>_create_basic_structure()</code> - Structure plan</li>
+                        </ul>
+                        <p><strong>Outputs:</strong></p>
+                        <span class="badge output">Enhanced itinerary</span>
+                        <span class="badge output">Suggestions</span>
+                        <span class="badge output">Tips</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- API Endpoints -->
+            <section>
+                <h2>🔌 API Endpoints Flow</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>Input</th>
+                            <th>Agent Flow</th>
+                            <th>Output</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/api/plan</code></td>
+                            <td>POST</td>
+                            <td>User constraints</td>
+                            <td>All 6 agents (depending on detail level)</td>
+                            <td>Complete travel plan</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/refine</code></td>
+                            <td>POST</td>
+                            <td>Plan ID + refinements</td>
+                            <td>Re-run full pipeline with merged constraints</td>
+                            <td>Updated plan</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/alternatives</code></td>
+                            <td>POST</td>
+                            <td>Plan ID + count</td>
+                            <td>Destination Recommender only</td>
+                            <td>Alternative destinations</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/enrich/activity</code></td>
+                            <td>POST</td>
+                            <td>Single activity</td>
+                            <td>Dual Model Enricher</td>
+                            <td>Enriched activity</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/regenerate-day</code></td>
+                            <td>POST</td>
+                            <td>Plan ID + day number</td>
+                            <td>Itinerary Planner + Detail Enricher</td>
+                            <td>Updated day</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/enrich-progressive</code></td>
+                            <td>POST</td>
+                            <td>Itinerary data</td>
+                            <td>Dual Model Enricher (streaming)</td>
+                            <td>SSE stream</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- Alternative Mode: Plan Enhancement -->
+            <section class="mode-section">
+                <h2>🔄 Alternative Mode: Plan Enhancement</h2>
+                <h3>When user provides existing plan</h3>
+                
+                <div class="flow-diagram">
+                    <div class="flow-step input">
+                        <h4>📥 Input: Existing Plan</h4>
+                        <p>User provides their existing travel plan text + destination</p>
+                        <span class="badge input">existing_plan</span>
+                        <span class="badge input">specific_destination</span>
+                        <span class="badge input">plan_action</span>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="flow-step agent">
+                        <h4>🎯 Constraint Parser</h4>
+                        <p>Parse any additional constraints (dates, pace, etc.)</p>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="flow-step agent">
+                        <h4>✨ Plan Enhancer Agent</h4>
+                        <p><code>PlanEnhancerAgent.enhance()</code></p>
+                        <p>Analyzes existing plan and provides:</p>
+                        <ul>
+                            <li>Structured itinerary format</li>
+                            <li>Missing details and recommendations</li>
+                            <li>Cost estimates</li>
+                            <li>Practical tips</li>
+                            <li>Hotel recommendations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="flow-step utility">
+                        <h4>🔗 URL Validation</h4>
+                        <p>Validate all links and sources</p>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="flow-step output">
+                        <h4>📤 Enhanced Plan Output</h4>
+                        <p>Original plan + enhancements + suggestions</p>
+                        <span class="badge output">Enhanced itinerary</span>
+                        <span class="badge output">Tips</span>
+                        <span class="badge output">Recommendations</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Utility Functions -->
+            <section>
+                <h2>🛠️ Utility Components</h2>
+                <div class="grid">
+                    <div class="card blue">
+                        <h3>utils.py</h3>
+                        <p><strong>Core Utilities:</strong></p>
+                        <ul>
+                            <li><code>call_llm()</code> - Make LLM API calls</li>
+                            <li><code>parse_json_response()</code> - Parse JSON from LLM</li>
+                            <li><code>format_constraint_for_llm()</code> - Format prompts</li>
+                            <li><code>calculate_trip_duration()</code> - Date calculations</li>
+                            <li><code>validate_budget()</code> - Budget validation</li>
+                            <li><code>generate_plan_id()</code> - Unique ID generation</li>
+                            <li><code>store_debug_trace()</code> - Debug storage</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card blue">
+                        <h3>url_validator.py</h3>
+                        <p><strong>URL Validation:</strong></p>
+                        <ul>
+                            <li><code>is_valid_url_format()</code> - Format check</li>
+                            <li><code>validate_url()</code> - HTTP validation</li>
+                            <li><code>validate_urls()</code> - Batch validation</li>
+                            <li><code>filter_valid_sources()</code> - Filter invalid URLs</li>
+                        </ul>
+                        <p><strong>Purpose:</strong> Ensure all external links in responses are valid and accessible</p>
+                    </div>
+                    
+                    <div class="card blue">
+                        <h3>api_streaming.py</h3>
+                        <p><strong>Streaming Support:</strong></p>
+                        <ul>
+                            <li><code>create_streaming_enrichment_endpoint()</code> - Setup</li>
+                            <li><code>enrich_progressive()</code> - SSE handler</li>
+                        </ul>
+                        <p><strong>Purpose:</strong> Progressive enrichment with real-time updates to frontend</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Detail Levels -->
+            <section>
+                <h2>📊 Detail Level Processing</h2>
+                <div class="flow-diagram">
+                    <h3>High-Level (Quick Recommendations)</h3>
+                    <div class="flow-step">
+                        <strong>Agents Used:</strong> Constraint Parser → Destination Recommender
+                    </div>
+                    <div class="flow-step">
+                        <strong>Output:</strong> 5 destination recommendations with scores and reasoning
+                    </div>
+                    <div class="flow-step">
+                        <strong>Use Case:</strong> User exploring options, needs quick suggestions
+                    </div>
+                </div>
+                
+                <div class="flow-diagram" style="margin-top: 20px;">
+                    <h3>Medium (Itinerary Outline)</h3>
+                    <div class="flow-step">
+                        <strong>Agents Used:</strong> Constraint Parser → Destination Recommender → Itinerary Planner
+                    </div>
+                    <div class="flow-step">
+                        <strong>Output:</strong> Top destination + basic day-by-day itinerary outline
+                    </div>
+                    <div class="flow-step">
+                        <strong>Use Case:</strong> User wants to see structure before committing to details
+                    </div>
+                </div>
+                
+                <div class="flow-diagram" style="margin-top: 20px;">
+                    <h3>Full (Complete Plan)</h3>
+                    <div class="flow-step">
+                        <strong>Agents Used:</strong> All agents (Constraint Parser → Destination Recommender → Itinerary Planner → Detail Enricher)
+                    </div>
+                    <div class="flow-step">
+                        <strong>Output:</strong> Complete itinerary with timing, pricing, booking links, tips
+                    </div>
+                    <div class="flow-step">
+                        <strong>Use Case:</strong> User ready to plan, needs comprehensive details
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Data Flow Summary -->
+            <section>
+                <h2>💾 Data Storage & State Management</h2>
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <h4>Plan Storage</h4>
+                        <p>Each generated plan is stored with a unique Plan ID in the orchestrator's memory (<code>self.plans</code> dictionary)</p>
+                        <p><strong>Note:</strong> In production, this should use a proper database (Redis, PostgreSQL, etc.)</p>
+                    </div>
+                    
+                    <div class="flow-step">
+                        <h4>Debug Traces</h4>
+                        <p>When debug mode is enabled, detailed execution traces are stored including:</p>
+                        <ul>
+                            <li>Timing for each agent step</li>
+                            <li>Intermediate outputs</li>
+                            <li>Error messages</li>
+                            <li>LLM prompts and responses</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flow-step">
+                        <h4>Plan Retrieval</h4>
+                        <p>Plans can be retrieved later using <code>GET /api/plan/&lt;plan_id&gt;</code> for refinement or regeneration</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Error Handling -->
+            <section>
+                <h2>⚠️ Error Handling & Fallbacks</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Graceful Degradation</h3>
+                        <p>Each agent has fallback strategies:</p>
+                        <ul>
+                            <li><strong>Constraint Parser:</strong> Uses default values for missing constraints</li>
+                            <li><strong>Destination Recommender:</strong> Returns popular destinations if LLM fails</li>
+                            <li><strong>Itinerary Planner:</strong> Creates basic structure if detailed planning fails</li>
+                            <li><strong>Detail Enricher:</strong> Returns basic enrichment without detailed info</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Validation Layers</h3>
+                        <p>Multiple validation points:</p>
+                        <ul>
+                            <li>API input validation</li>
+                            <li>Constraint conflict detection</li>
+                            <li>Budget feasibility checks</li>
+                            <li>Date validation</li>
+                            <li>URL accessibility validation</li>
+                            <li>JSON parsing with error recovery</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>User Feedback</h3>
+                        <p>Transparent communication:</p>
+                        <ul>
+                            <li><strong>Warnings:</strong> Budget concerns, date issues</li>
+                            <li><strong>Assumptions:</strong> What the system inferred</li>
+                            <li><strong>Conflicts:</strong> Incompatible constraints</li>
+                            <li><strong>Suggestions:</strong> How to improve the request</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Performance Notes -->
+            <section>
+                <h2>⚡ Performance Considerations</h2>
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <h4>Sequential Agent Execution</h4>
+                        <p>Agents run sequentially as each depends on the previous agent's output</p>
+                        <p><strong>Typical timing:</strong> 5-15 seconds for full detail level</p>
+                    </div>
+                    
+                    <div class="flow-step">
+                        <h4>LLM API Calls</h4>
+                        <p>Each agent makes 1-2 LLM API calls</p>
+                        <p><strong>Optimization:</strong> Uses streaming for progressive enrichment</p>
+                    </div>
+                    
+                    <div class="flow-step">
+                        <h4>Caching Opportunity</h4>
+                        <p>Plans are stored and can be retrieved without re-processing</p>
+                        <p><strong>Future enhancement:</strong> Cache destination recommendations for similar queries</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Summary -->
+            <section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 15px; margin-top: 40px;">
+                <h2 style="color: white; border-bottom-color: white;">🎯 Architecture Summary</h2>
+                <div style="font-size: 1.1em; line-height: 1.8;">
+                    <p><strong>1. Input Processing:</strong> User requests come through REST API endpoints</p>
+                    <p><strong>2. Orchestration:</strong> Central orchestrator manages the agent pipeline flow</p>
+                    <p><strong>3. Agent Pipeline:</strong> 6 specialized LLM agents process the request sequentially</p>
+                    <p><strong>4. Validation:</strong> Multiple validation layers ensure quality and safety</p>
+                    <p><strong>5. Output Generation:</strong> Structured JSON response with complete travel plan</p>
+                    <p><strong>6. State Management:</strong> Plans stored for future refinement and regeneration</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

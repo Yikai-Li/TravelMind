@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelMind - System Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+        }
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        .diagram {
+            position: relative;
+            min-height: 1200px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 30px;
+            background: #f7fafc;
+        }
+        .box {
+            position: absolute;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            padding: 12px 16px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 13px;
+            line-height: 1.4;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .box-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #2d3748;
+        }
+        .box-subtitle {
+            font-size: 11px;
+            color: #718096;
+            font-style: italic;
+        }
+        .input-node {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #5a67d8;
+        }
+        .llm-node {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+            border-color: #dd6b20;
+        }
+        .agent-node {
+            background: #edf2f7;
+            border-color: #4a5568;
+        }
+        .decision-node {
+            background: #fef5e7;
+            border: 2px dashed #f59e0b;
+        }
+        .output-node {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-color: #2f855a;
+        }
+        .api-node {
+            background: #e6fffa;
+            border: 2px solid #319795;
+        }
+        .storage-node {
+            background: #faf5ff;
+            border: 2px solid #805ad5;
+        }
+        .container-box {
+            position: absolute;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            background: rgba(237, 242, 247, 0.3);
+            padding: 10px;
+        }
+        .container-label {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        .arrow {
+            position: absolute;
+            height: 2px;
+            background: #4a5568;
+            transform-origin: left center;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #4a5568;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        .arrow-label {
+            position: absolute;
+            font-size: 11px;
+            color: #4a5568;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        .dashed-arrow {
+            background: none;
+            border-top: 2px dashed #a0aec0;
+        }
+        .dashed-arrow::after {
+            border-left-color: #a0aec0;
+        }
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+            font-size: 12px;
+        }
+        .legend-box {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+            border: 2px solid;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 TravelMind - System Architecture</h1>
+        <p class="subtitle">AI-Powered Multi-Agent Travel Planning System</p>
+        
+        <div class="diagram">
+            <!-- Container: Frontend Layer -->
+            <div class="container-box" style="left: 20px; top: 20px; width: 280px; height: 380px;">
+                <div class="container-label">Frontend Layer (Next.js)</div>
+            </div>
+            
+            <!-- Container: API Layer -->
+            <div class="container-box" style="left: 340px; top: 20px; width: 200px; height: 380px;">
+                <div class="container-label">API Layer (Flask)</div>
+            </div>
+            
+            <!-- Container: Orchestrator & Core -->
+            <div class="container-box" style="left: 580px; top: 20px; width: 280px; height: 1100px;">
+                <div class="container-label">Orchestrator & Core Pipeline</div>
+            </div>
+            
+            <!-- Container: LLM Agents -->
+            <div class="container-box" style="left: 900px; top: 20px; width: 450px; height: 1100px;">
+                <div class="container-label">LLM Agent Modules</div>
+            </div>
+            
+            <!-- Container: Utilities & Support -->
+            <div class="container-box" style="left: 1390px; top: 20px; width: 220px; height: 600px;">
+                <div class="container-label">Utilities & Support</div>
+            </div>
+
+            <!-- FRONTEND INPUT NODES -->
+            <div class="box input-node" style="left: 40px; top: 60px; width: 240px;">
+                <div class="box-title">🖥️ PlanningForm Component</div>
+                <div class="box-subtitle">User Input: New Travel Plan</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Dates, budget, preferences<br>
+                    • Travel style, pace, interests<br>
+                    • Departure city, group type<br>
+                    • Detail level selection
+                </div>
+            </div>
+
+            <div class="box input-node" style="left: 40px; top: 190px; width: 240px;">
+                <div class="box-title">📝 Plan Enhancement Input</div>
+                <div class="box-subtitle">User Input: Enhance Existing Plan</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Existing plan text<br>
+                    • Specific destination<br>
+                    • Enhancement preferences<br>
+                    • Action type
+                </div>
+            </div>
+
+            <div class="box input-node" style="left: 40px; top: 310px; width: 240px;">
+                <div class="box-title">🔄 Refinement/Alternatives Input</div>
+                <div class="box-subtitle">User Actions: Adjust & Regenerate</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Budget adjustments<br>
+                    • Pace changes<br>
+                    • Additional notes<br>
+                    • Rejected destinations
+                </div>
+            </div>
+
+            <!-- API ENDPOINTS -->
+            <div class="box api-node" style="left: 360px; top: 70px; width: 160px;">
+                <div class="box-title">POST /api/plan</div>
+                <div class="box-subtitle">Generate Plan Endpoint</div>
+            </div>
+
+            <div class="box api-node" style="left: 360px; top: 200px; width: 160px;">
+                <div class="box-title">POST /api/plan</div>
+                <div class="box-subtitle">Enhancement Mode</div>
+            </div>
+
+            <div class="box api-node" style="left: 360px; top: 310px; width: 160px;">
+                <div class="box-title">POST /api/refine</div>
+                <div class="box-subtitle">Refinement Endpoint</div>
+            </div>
+
+            <div class="box api-node" style="left: 360px; top: 420px; width: 160px;">
+                <div class="box-title">POST /api/enrich-progressive</div>
+                <div class="box-subtitle">Streaming Enrichment (SSE)</div>
+            </div>
+
+            <!-- ORCHESTRATOR -->
+            <div class="box" style="left: 600px; top: 60px; width: 240px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #5a67d8;">
+                <div class="box-title">🎯 TravelMind Orchestrator</div>
+                <div class="box-subtitle" style="color: #e2e8f0;">Central Coordinator</div>
+                <div style="margin-top: 8px; font-size: 11px;">
+                    • Route to appropriate flow<br>
+                    • Manage agent pipeline<br>
+                    • Handle plan storage<br>
+                    • Debug trace management<br>
+                    • Error handling & fallbacks
+                </div>
+            </div>
+
+            <!-- DECISION NODES -->
+            <div class="box decision-node" style="left: 620px; top: 200px; width: 200px;">
+                <div class="box-title">🔀 Route Decision</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    IF existing_plan:<br>
+                    → Enhancement Flow<br>
+                    ELSE:<br>
+                    → Standard Planning Flow
+                </div>
+            </div>
+
+            <div class="box decision-node" style="left: 620px; top: 520px; width: 200px;">
+                <div class="box-title">🔀 Detail Level Decision</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • high_level → Recommendations only<br>
+                    • medium → + Basic itinerary<br>
+                    • full → + Detailed enrichment
+                </div>
+            </div>
+
+            <div class="box decision-node" style="left: 620px; top: 990px; width: 200px;">
+                <div class="box-title">✅ Response Assembly</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Build JSON response<br>
+                    • Add metadata<br>
+                    • Include warnings/assumptions<br>
+                    • Filter/validate URLs
+                </div>
+            </div>
+
+            <!-- LLM AGENTS -->
+            <div class="box agent-node" style="left: 920px; top: 60px; width: 200px;">
+                <div class="box-title">1️⃣ Constraint Parser</div>
+                <div class="box-subtitle">constraint_parser.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Parse & normalize inputs<br>
+                    • Validate constraints<br>
+                    • Detect conflicts<br>
+                    • Generate warnings/assumptions<br>
+                    <strong>→ GPT-4</strong>
+                </div>
+            </div>
+
+            <div class="box agent-node" style="left: 920px; top: 200px; width: 200px;">
+                <div class="box-title">2️⃣ Destination Recommender</div>
+                <div class="box-subtitle">destination_recommender.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Analyze preferences<br>
+                    • Recommend destinations (1-5)<br>
+                    • Score & rank options<br>
+                    • Provide reasoning<br>
+                    <strong>→ GPT-4</strong>
+                </div>
+            </div>
+
+            <div class="box agent-node" style="left: 920px; top: 360px; width: 200px;">
+                <div class="box-title">3️⃣ Itinerary Planner</div>
+                <div class="box-subtitle">itinerary_planner.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Create day-by-day schedule<br>
+                    • Balance activities & pace<br>
+                    • Time allocations<br>
+                    • Overview & pacing notes<br>
+                    <strong>→ GPT-4</strong>
+                </div>
+            </div>
+
+            <div class="box agent-node" style="left: 920px; top: 510px; width: 200px;">
+                <div class="box-title">4️⃣ Detail Enricher</div>
+                <div class="box-subtitle">detail_enricher.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Add detailed info to activities<br>
+                    • Descriptions, tips, timing<br>
+                    • Costs & logistics<br>
+                    • Sources & links<br>
+                    <strong>→ GPT-4</strong>
+                </div>
+            </div>
+
+            <div class="box agent-node" style="left: 920px; top: 660px; width: 200px;">
+                <div class="box-title">5️⃣ Dual Model Enricher</div>
+                <div class="box-subtitle">dual_model_enricher.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Enhanced enrichment<br>
+                    • Web scraping integration<br>
+                    • Multiple LLM models<br>
+                    • Progressive streaming<br>
+                    <strong>→ GPT-4 + GPT-3.5</strong>
+                </div>
+            </div>
+
+            <div class="box agent-node" style="left: 920px; top: 820px; width: 200px;">
+                <div class="box-title">6️⃣ Plan Enhancer</div>
+                <div class="box-subtitle">plan_enhancer.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Parse existing user plans<br>
+                    • Add suggestions & improvements<br>
+                    • Hotel recommendations<br>
+                    • Cost estimates & tips<br>
+                    <strong>→ GPT-4</strong>
+                </div>
+            </div>
+
+            <!-- ALTERNATIVE FLOW -->
+            <div class="box llm-node" style="left: 1150px; top: 200px; width: 180px;">
+                <div class="box-title">🎲 Alternative Path</div>
+                <div class="box-subtitle">When user rejects destination</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Track rejected destinations<br>
+                    • Apply constraint updates<br>
+                    • Re-run Recommender<br>
+                    → Return 5 new options
+                </div>
+            </div>
+
+            <!-- UTILITIES -->
+            <div class="box" style="left: 1410px; top: 60px; width: 180px; background: #fff5f5; border-color: #fc8181;">
+                <div class="box-title">🛠️ LLM Utilities</div>
+                <div class="box-subtitle">utils.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • call_llm()<br>
+                    • parse_llm_json()<br>
+                    • Model selection<br>
+                    • Error handling
+                </div>
+            </div>
+
+            <div class="box" style="left: 1410px; top: 200px; width: 180px; background: #fffbeb; border-color: #f59e0b;">
+                <div class="box-title">🔗 URL Validator</div>
+                <div class="box-subtitle">url_validator.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Validate external URLs<br>
+                    • Filter broken links<br>
+                    • Check accessibility<br>
+                    • Clean responses
+                </div>
+            </div>
+
+            <div class="box storage-node" style="left: 1410px; top: 340px; width: 180px;">
+                <div class="box-title">💾 Plan Storage</div>
+                <div class="box-subtitle">In-Memory Dict</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Store generated plans<br>
+                    • plan_id → plan_data<br>
+                    • Retrieve for refinement<br>
+                    • Debug trace storage
+                </div>
+            </div>
+
+            <div class="box" style="left: 1410px; top: 480px; width: 180px; background: #f0fff4; border-color: #48bb78;">
+                <div class="box-title">🔍 Debug Tracer</div>
+                <div class="box-subtitle">utils.py</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Step-by-step execution log<br>
+                    • Timing information<br>
+                    • Agent outputs<br>
+                    • Error traces
+                </div>
+            </div>
+
+            <!-- OUTPUT NODES -->
+            <div class="box output-node" style="left: 40px; top: 500px; width: 240px;">
+                <div class="box-title">📋 DestinationsList Component</div>
+                <div class="box-subtitle">Display: High-Level Recommendations</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Show 5 destination options<br>
+                    • Scores, reasoning, highlights<br>
+                    • User selection → Generate itinerary
+                </div>
+            </div>
+
+            <div class="box output-node" style="left: 40px; top: 650px; width: 240px;">
+                <div class="box-title">📅 ItineraryView Component</div>
+                <div class="box-subtitle">Display: Medium/Full Itinerary</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Day-by-day schedule<br>
+                    • Activity details (if full)<br>
+                    • Costs, tips, sources<br>
+                    • Refine/Alternatives actions
+                </div>
+            </div>
+
+            <div class="box output-node" style="left: 40px; top: 800px; width: 240px;">
+                <div class="box-title">✨ Enhanced Plan View</div>
+                <div class="box-subtitle">Display: Enhanced User Plan</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    • Original + improvements<br>
+                    • Suggestions & recommendations<br>
+                    • Hotel options, cost estimates<br>
+                    • Practical tips
+                </div>
+            </div>
+
+            <!-- PROCESSING STAGES -->
+            <div class="box" style="left: 620px; top: 650px; width: 200px; background: #e6fffa; border: 2px solid #319795;">
+                <div class="box-title">⚙️ Standard Flow Pipeline</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    1. Parse Constraints<br>
+                    2. Recommend Destinations<br>
+                    3. [if medium/full] Plan Itinerary<br>
+                    4. [if full] Enrich Details<br>
+                    5. Assemble Response
+                </div>
+            </div>
+
+            <div class="box" style="left: 620px; top: 820px; width: 200px; background: #fef5e7; border: 2px solid #f59e0b;">
+                <div class="box-title">⚙️ Enhancement Flow Pipeline</div>
+                <div style="margin-top: 6px; font-size: 11px;">
+                    1. Parse Constraints<br>
+                    2. Run Plan Enhancer<br>
+                    3. Parse existing plan<br>
+                    4. Add improvements & details<br>
+                    5. Assemble Enhanced Response
+                </div>
+            </div>
+
+            <!-- ARROWS -->
+            <!-- Frontend to API -->
+            <div class="arrow" style="left: 290px; top: 95px; width: 60px;"></div>
+            <div class="arrow" style="left: 290px; top: 225px; width: 60px;"></div>
+            <div class="arrow" style="left: 290px; top: 335px; width: 60px;"></div>
+
+            <!-- API to Orchestrator -->
+            <div class="arrow" style="left: 530px; top: 95px; width: 60px;"></div>
+            <div class="arrow" style="left: 530px; top: 225px; width: 60px;"></div>
+            <div class="arrow" style="left: 530px; top: 335px; width: 60px;"></div>
+
+            <!-- Orchestrator to Decision -->
+            <div class="arrow" style="left: 720px; top: 175px; width: 2px; height: 25px; transform: rotate(90deg); transform-origin: left center;"></div>
+
+            <!-- Decision to Agents -->
+            <div class="arrow" style="left: 720px; top: 280px; width: 2px; height: 240px; transform: rotate(90deg); transform-origin: left center;">
+                <div class="arrow-label" style="left: 120px; top: -15px;">standard flow</div>
+            </div>
+            <div class="arrow" style="left: 720px; top: 270px; width: 2px; height: 550px; transform: rotate(90deg); transform-origin: left center;">
+                <div class="arrow-label" style="left: 275px; top: -15px;">enhancement flow</div>
+            </div>
+
+            <!-- Agent to Agent vertical flows -->
+            <div class="arrow" style="left: 1020px; top: 140px; width: 2px; height: 50px; transform: rotate(90deg); transform-origin: left center;"></div>
+            <div class="arrow" style="left: 1020px; top: 280px; width: 2px; height: 70px; transform: rotate(90deg); transform-origin: left center;"></div>
+            <div class="arrow" style="left: 1020px; top: 440px; width: 2px; height: 60px; transform: rotate(90deg); transform-origin: left center;"></div>
+
+            <!-- Agents to Utilities -->
+            <div class="dashed-arrow" style="left: 1130px; top: 95px; width: 270px;">
+                <div class="arrow-label" style="left: 100px; top: -20px;">uses</div>
+            </div>
+            <div class="dashed-arrow" style="left: 1130px; top: 225px; width: 270px;"></div>
+            <div class="dashed-arrow" style="left: 1130px; top: 385px; width: 270px;"></div>
+            <div class="dashed-arrow" style="left: 1130px; top: 535px; width: 270px;"></div>
+
+            <!-- Back to Response Assembly -->
+            <div class="arrow" style="left: 720px; top: 720px; width: 2px; height: 270px; transform: rotate(90deg); transform-origin: left center;">
+                <div class="arrow-label" style="left: 135px; top: -15px;">results</div>
+            </div>
+            <div class="arrow" style="left: 720px; top: 900px; width: 2px; height: 90px; transform: rotate(90deg); transform-origin: left center;"></div>
+
+            <!-- Response to Storage -->
+            <div class="dashed-arrow" style="left: 830px; top: 1015px; width: 570px;">
+                <div class="arrow-label" style="left: 250px; top: -20px;">store plan_id</div>
+            </div>
+
+            <!-- Back to Frontend -->
+            <div class="arrow" style="left: 530px; top: 1015px; width: -240px; transform: rotate(180deg);">
+                <div class="arrow-label" style="right: 90px; top: -20px;">JSON response</div>
+            </div>
+            <div class="arrow" style="left: 440px; top: 550px; width: 2px; height: 465px; transform: rotate(90deg); transform-origin: left center;"></div>
+            <div class="arrow" style="left: 280px; top: 550px; width: 2px; height: -30px; transform: rotate(90deg); transform-origin: left center;"></div>
+
+            <!-- Alternative flow -->
+            <div class="dashed-arrow" style="left: 1020px; top: 260px; width: 120px;">
+                <div class="arrow-label" style="left: 30px; top: -20px;">alternative</div>
+            </div>
+            <div class="dashed-arrow" style="left: 1250px; top: 260px; width: 2px; height: -60px; transform: rotate(90deg); transform-origin: left center;"></div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-title">Legend</div>
+                <div class="legend-item">
+                    <div class="legend-box input-node"></div>
+                    <span>User Input / Frontend</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box api-node"></div>
+                    <span>API Endpoints</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box agent-node"></div>
+                    <span>LLM Agents</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box llm-node"></div>
+                    <span>LLM-Powered Module</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box decision-node"></div>
+                    <span>Decision / Router</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box output-node"></div>
+                    <span>Display / Output</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box storage-node"></div>
+                    <span>Storage / State</span>
+                </div>
+                <div class="legend-item">
+                    <div style="width: 30px; height: 2px; background: #4a5568; position: relative; margin-right: 8px;">
+                        <div style="position: absolute; right: -8px; top: -4px; width: 0; height: 0; border-left: 8px solid #4a5568; border-top: 5px solid transparent; border-bottom: 5px solid transparent;"></div>
+                    </div>
+                    <span>Data Flow</span>
+                </div>
+                <div class="legend-item">
+                    <div style="width: 30px; height: 2px; border-top: 2px dashed #a0aec0; position: relative; margin-right: 8px;"></div>
+                    <span>Reference / Usage</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #edf2f7; border-radius: 10px;">
+            <h2 style="color: #2d3748; margin-top: 0;">📊 Key Flows</h2>
+            
+            <h3 style="color: #4a5568;">1️⃣ New Plan Flow (Standard)</h3>
+            <p><strong>User Input</strong> → API → Orchestrator → Parse Constraints → Recommend Destinations</p>
+            <ul>
+                <li><strong>High-Level:</strong> Return 5 recommendations → User selects → Generate itinerary</li>
+                <li><strong>Medium:</strong> Return top destination + basic itinerary (no enrichment)</li>
+                <li><strong>Full:</strong> Return top destination + itinerary + detailed enrichment</li>
+            </ul>
+
+            <h3 style="color: #4a5568;">2️⃣ Plan Enhancement Flow</h3>
+            <p><strong>User provides existing plan</strong> → API → Orchestrator → Parse Constraints → Plan Enhancer → Add details, suggestions, costs → Return enhanced plan</p>
+
+            <h3 style="color: #4a5568;">3️⃣ Refinement Flow</h3>
+            <p><strong>User adjusts constraints</strong> (budget, pace, interests) → API → Orchestrator → Merge with original constraints → Regenerate plan</p>
+
+            <h3 style="color: #4a5568;">4️⃣ Alternatives Flow</h3>
+            <p><strong>User rejects destination</strong> → Track rejection → Update constraints → Re-run Recommender → Return 5 new options</p>
+
+            <h3 style="color: #4a5568;">5️⃣ Progressive Enrichment Flow (Streaming)</h3>
+            <p><strong>Itinerary ready</strong> → Call Dual Model Enricher → Stream enriched activities via SSE → Real-time updates in UI</p>
+        </div>
+
+        <div style="margin-top: 20px; padding: 20px; background: #f7fafc; border-left: 4px solid #667eea; border-radius: 5px;">
+            <h3 style="color: #2d3748; margin-top: 0;">🎯 Architecture Highlights</h3>
+            <ul>
+                <li><strong>Multi-Agent System:</strong> 6 specialized LLM agents with distinct responsibilities</li>
+                <li><strong>Progressive Refinement:</strong> Users can iteratively improve plans with adjustments</li>
+                <li><strong>Flexible Detail Levels:</strong> High-level recommendations, medium itineraries, or full detailed plans</li>
+                <li><strong>Plan Enhancement Mode:</strong> Users can upload existing plans for AI-powered improvements</li>
+                <li><strong>Streaming Enrichment:</strong> Real-time progressive updates for better UX</li>
+                <li><strong>Robust Error Handling:</strong> Validation, conflict detection, graceful degradation</li>
+                <li><strong>URL Validation:</strong> Automatic filtering of broken/invalid links</li>
+                <li><strong>Debug Mode:</strong> Comprehensive execution traces for transparency</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
