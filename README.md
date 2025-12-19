@@ -20,9 +20,9 @@ TravelMind is an LLM-powered travel planning application that generates personal
 
 ## 🤝 Project Team
 
-Yikai Li: https://www.linkedin.com/in/yikai-li-8986481a5/
-Andrew Chen: https://www.linkedin.com/in/andrew-chen-135202223/
-Ruochen Feng: https://www.linkedin.com/in/ruochenfeng/
+ - Yikai Li: https://www.linkedin.com/in/yikai-li-8986481a5/
+ - Andrew Chen: https://www.linkedin.com/in/andrew-chen-135202223/
+ - Ruochen Feng: https://www.linkedin.com/in/ruochenfeng/
 
 ## 📁 Complete Project Structure
 
