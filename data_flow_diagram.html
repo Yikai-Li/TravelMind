@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelMind - Data Flow Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .flow-section {
+            display: none;
+        }
+
+        .flow-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            min-width: 250px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .flow-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .flow-box.frontend {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .flow-box.api {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .flow-box.orchestrator {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .flow-box.agent {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .flow-box.model {
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+        }
+
+        .flow-box.service {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .flow-box h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .flow-box p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .flow-box ul {
+            list-style: none;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .flow-box ul li {
+            padding: 5px 0;
+            font-size: 0.85em;
+        }
+
+        .flow-box ul li:before {
+            content: "→ ";
+            font-weight: bold;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .arrow-down {
+            text-align: center;
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .split-flow {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .flow-branch {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .branch-title {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .dual-model-box {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .dual-model-box h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .model-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .model-card {
+            flex: 1;
+            background: white;
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .model-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .split-flow {
+                flex-direction: column;
+            }
+            
+            .flow-row {
+                flex-direction: column;
+            }
+
+            .model-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ TravelMind Data Flow Diagram</h1>
+        <p class="subtitle">AI-Powered Travel Planning System Architecture</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">System Overview</button>
+            <button class="tab" onclick="showTab('discover')">Discover Mode</button>
+            <button class="tab" onclick="showTab('enhance')">Enhancement Mode</button>
+            <button class="tab" onclick="showTab('agents')">Agent Pipeline</button>
+        </div>
+
+        <!-- System Overview -->
+        <div id="overview" class="flow-section active">
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">Complete System Architecture</h2>
+            
+            <div class="flow-container">
+                <!-- Frontend Layer -->
+                <div class="flow-row">
+                    <div class="flow-box frontend">
+                        <h3>🎨 Frontend (React/Next.js)</h3>
+                        <div class="badge">Port 3000</div>
+                        <ul>
+                            <li>PlanningForm Component</li>
+                            <li>Two Modes: Discover & Plan</li>
+                            <li>Real-time Updates</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <!-- API Layer -->
+                <div class="flow-row">
+                    <div class="flow-box api">
+                        <h3>🔌 Backend API (Flask)</h3>
+                        <div class="badge">Port 5000</div>
+                        <ul>
+                            <li>POST /api/plan</li>
+                            <li>POST /api/refine</li>
+                            <li>POST /api/enrich-progressive</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <!-- Orchestrator Layer -->
+                <div class="flow-row">
+                    <div class="flow-box orchestrator">
+                        <h3>🎯 Orchestrator</h3>
+                        <p>Central Coordinator</p>
+                        <ul>
+                            <li>generate_plan()</li>
+                            <li>enhance_existing_plan()</li>
+                            <li>refine_plan()</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <!-- Agent Layer -->
+                <div class="split-flow">
+                    <div class="flow-branch">
+                        <div class="branch-title">Discover Flow</div>
+                        <div class="flow-box agent">
+                            <h3>🤖 Agent Pipeline</h3>
+                            <ul>
+                                <li>ConstraintParser</li>
+                                <li>DestinationRecommender</li>
+                                <li>ItineraryPlanner</li>
+                                <li>DetailEnricher</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flow-branch">
+                        <div class="branch-title">Enhancement Flow</div>
+                        <div class="flow-box agent">
+                            <h3>🚀 Dual-Model Enhancement</h3>
+                            <ul>
+                                <li>ConstraintParser</li>
+                                <li>PlanEnhancer (Dual-Model)</li>
+                                <li>HuggingFace + GPT-4</li>
+                                <li>Timeout Protection</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <!-- External Services -->
+                <div class="flow-row">
+                    <div class="flow-box service">
+                        <h3>☁️ OpenAI API</h3>
+                        <p>GPT-4o-mini</p>
+                    </div>
+                    <div class="flow-box service">
+                        <h3>🤗 HuggingFace</h3>
+                        <p>travel-agent-8b-v2</p>
+                    </div>
+                    <div class="flow-box service">
+                        <h3>🌐 Web Scraping</h3>
+                        <p>Optional Enrichment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discover Mode Flow -->
+        <div id="discover" class="flow-section">
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">Discover Destinations Flow</h2>
+            
+            <div class="flow-container">
+                <div class="flow-box frontend">
+                    <h3>1. User Input</h3>
+                    <p>Dates, Budget, Style, Interests, Pace</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>2. ConstraintParser</h3>
+                    <ul>
+                        <li>Parse & normalize dates</li>
+                        <li>Validate budget</li>
+                        <li>Generate assumptions</li>
+                        <li>Detect conflicts</li>
+                    </ul>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>3. DestinationRecommender</h3>
+                    <ul>
+                        <li>Query GPT-4 with constraints</li>
+                        <li>Score destinations (0-100)</li>
+                        <li>Rank by match quality</li>
+                        <li>Add cost estimates</li>
+                    </ul>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-row">
+                    <div class="flow-box agent" style="opacity: 0.7;">
+                        <h3>High-Level</h3>
+                        <p>Return destinations only</p>
+                        <div class="badge">~20s</div>
+                    </div>
+                    <div class="flow-box agent" style="opacity: 0.8;">
+                        <h3>Medium</h3>
+                        <p>+ Basic itinerary outline</p>
+                        <div class="badge">~60s</div>
+                    </div>
+                    <div class="flow-box agent">
+                        <h3>Full Detail</h3>
+                        <p>+ Complete enrichment</p>
+                        <div class="badge">~90s</div>
+                    </div>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>4. ItineraryPlanner</h3>
+                    <ul>
+                        <li>Calculate trip duration</li>
+                        <li>Build day-by-day structure</li>
+                        <li>Allocate activities by pace</li>
+                        <li>Add meals & transport</li>
+                    </ul>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>5. DetailEnricher</h3>
+                    <ul>
+                        <li>Add specific timing</li>
+                        <li>Estimate costs</li>
+                        <li>Hotel recommendations</li>
+                        <li>Restaurant options</li>
+                        <li>Booking info & tips</li>
+                    </ul>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box orchestrator">
+                    <h3>6. URL Validation</h3>
+                    <p>Filter & validate external sources</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box frontend">
+                    <h3>7. Frontend Display</h3>
+                    <p>Render complete itinerary</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhancement Mode Flow -->
+        <div id="enhance" class="flow-section">
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">Plan Enhancement Flow (Dual-Model)</h2>
+            
+            <div class="flow-container">
+                <div class="flow-box frontend">
+                    <h3>1. User Input (Plan Mode)</h3>
+                    <ul>
+                        <li>Existing plan text</li>
+                        <li>Destination</li>
+                        <li>Action: enhance/modify/fill/optimize</li>
+                        <li>Optional: dates, budget, pace</li>
+                    </ul>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>2. ConstraintParser</h3>
+                    <p>Parse additional constraints</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="dual-model-box">
+                    <h3 style="color: white;">3. PlanEnhancer (DUAL-MODEL) 🚀</h3>
+                    
+                    <div class="model-row">
+                        <div class="model-card">
+                            <h4>🤗 HuggingFace Model</h4>
+                            <p><strong>Model:</strong> travel-agent-8b-v2</p>
+                            <p><strong>Timeout:</strong> 20 seconds</p>
+                            <p><strong>Role:</strong> Travel-specific insights</p>
+                            <ul style="margin-top: 10px; list-style: none;">
+                                <li>→ Suggestions</li>
+                                <li>→ Tips</li>
+                                <li>→ Recommendations</li>
+                                <li>→ Natural language</li>
+                            </ul>
+                        </div>
+
+                        <div class="model-card">
+                            <h4>🤖 GPT-4 Model</h4>
+                            <p><strong>Model:</strong> gpt-4o-mini</p>
+                            <p><strong>Timeout:</strong> Default</p>
+                            <p><strong>Role:</strong> Structured output</p>
+                            <ul style="margin-top: 10px; list-style: none;">
+                                <li>→ JSON formatting</li>
+                                <li>→ Hotels</li>
+                                <li>→ Restaurants</li>
+                                <li>→ Costs & timing</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                        <p style="color: white; font-weight: bold;">
+                            ✓ If HF times out → Automatic fallback to GPT-only<br>
+                            ✓ If HF succeeds → Combined insights for best results
+                        </p>
+                    </div>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box orchestrator">
+                    <h3>4. URL Validation</h3>
+                    <p>Validate external sources</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box frontend">
+                    <h3>5. Frontend Display</h3>
+                    <p>Render enhanced plan with metadata</p>
+                    <div class="badge">Shows which models were used</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Pipeline Detail -->
+        <div id="agents" class="flow-section">
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">Agent Pipeline Details</h2>
+            
+            <div class="flow-container">
+                <div class="flow-box agent">
+                    <h3>ConstraintParser Agent</h3>
+                    <p><strong>Input:</strong> Raw user data</p>
+                    <ul>
+                        <li>Parse dates → date range</li>
+                        <li>Normalize budget → daily budget</li>
+                        <li>Parse interests → list</li>
+                        <li>Detect conflicts → warnings</li>
+                        <li>Fill gaps → assumptions</li>
+                    </ul>
+                    <p><strong>Output:</strong> Structured constraints object</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>DestinationRecommender Agent</h3>
+                    <p><strong>Input:</strong> Parsed constraints</p>
+                    <ul>
+                        <li>Build LLM prompt with constraints</li>
+                        <li>Query GPT-4 for recommendations</li>
+                        <li>Parse JSON response</li>
+                        <li>Score destinations (0-100)</li>
+                        <li>Add distance/cost estimates</li>
+                    </ul>
+                    <p><strong>Output:</strong> Ranked destination list</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>ItineraryPlanner Agent</h3>
+                    <p><strong>Input:</strong> Top destination + constraints</p>
+                    <ul>
+                        <li>Calculate trip duration</li>
+                        <li>Build day-by-day structure</li>
+                        <li>Allocate activities by pace</li>
+                        <li>Add meal suggestions</li>
+                        <li>Include transportation</li>
+                    </ul>
+                    <p><strong>Output:</strong> Day-by-day itinerary skeleton</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>DetailEnricher Agent</h3>
+                    <p><strong>Input:</strong> Itinerary skeleton</p>
+                    <ul>
+                        <li>For each activity:
+                            <ul style="margin-left: 15px; margin-top: 5px;">
+                                <li>Add specific timing</li>
+                                <li>Estimate costs</li>
+                                <li>Add booking info</li>
+                                <li>Include tips</li>
+                            </ul>
+                        </li>
+                        <li>Add hotel recommendations (3-5)</li>
+                        <li>Add restaurant options</li>
+                        <li>Include transport details</li>
+                    </ul>
+                    <p><strong>Output:</strong> Fully detailed itinerary</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>DualModelEnricher Agent</h3>
+                    <p><strong>Input:</strong> Activity details</p>
+                    <ul>
+                        <li>Use travel-agent model for insights</li>
+                        <li>Use GPT for structured data</li>
+                        <li>Web scraping for validation</li>
+                        <li>Combine multiple sources</li>
+                    </ul>
+                    <p><strong>Output:</strong> Enriched activity details</p>
+                </div>
+
+                <div class="arrow-down">↓</div>
+
+                <div class="flow-box agent">
+                    <h3>PlanEnhancer Agent (Dual-Model)</h3>
+                    <p><strong>Input:</strong> Existing plan text</p>
+                    <ul>
+                        <li>Thread 1: HuggingFace model (20s timeout)</li>
+                        <li>Thread 2: GPT-4 enhancement</li>
+                        <li>Combine insights from both</li>
+                        <li>Format as structured JSON</li>
+                        <li>Add hotels, restaurants, costs, tips</li>
+                    </ul>
+                    <p><strong>Output:</strong> Enhanced plan with metadata</p>
+                    <div class="badge">models_used: ['gpt-4o-mini', 'travel-agent-8b-v2']</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                <span>Frontend</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                <span>API Layer</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                <span>Orchestrator</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                <span>Agents</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);"></div>
+                <span>AI Models</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
+                <span>External Services</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.flow-section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Show selected section
+            document.getElementById(tabName).classList.add('active');
+
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
